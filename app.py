@@ -1,13 +1,16 @@
-from flask import Flask, render_template, redirect, url_for, request, g
+from flask import Flask, render_template, redirect, url_for, request, flash, g
 import sqlite3
 import hashlib
 import logging
+from flask import flash
 
 # Configure logging
-logging.basicConfig(filename='logging\\app.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
-
+# logging.basicConfig(filename='logging\\app.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
+
+app.secret_key = 'your_secret_key_here'  # Replace with a strong and unique secret key
+
 db_storage = "data\\test.db"
 
 # Function to get the database connection
@@ -66,23 +69,36 @@ def login2():
         username = request.form.get("username")
         password = request.form.get("password")
         print(username, password)
-        y = searchUser(username, password)
+        checkUser = searchUser(username, password)
 
-        if y:
-            return "User Logged In"  # render a template
+        if checkUser:
+            return redirect(url_for('admin'))  # render a template
         else:
-            return "Access Denied"  # render a template
+            flash('Username or password incorrect', 'error')
+            return render_template('login.html')  # render a template
     else:
         return render_template('login.html')  # render a template     
 
 # use decorators to link the function to a url
 @app.route('/')
 def home():
-    return "Hello, World!"  # return a string
+    return render_template('home.html')  # render a template 
+
+@app.route('/home')
+def home2():
+    return render_template('home.html')  # render a template 
+
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')  # render a template
 
 @app.route('/super_secret')
 def super_secret():
     return "Flag0987youwin!"  # return a string
+
+@app.route('/register')
+def register():
+    return render_template('register.html')  # render a template     
 
 @app.route('/welcome')
 def welcome():

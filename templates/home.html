@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/bootstrap.min.css">
-    <title>Login</title>
+    <title>Security Project - Home</title>
 </head>
 <body>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="#">Security Project</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
@@ -32,36 +32,21 @@
 </nav>
 
 <div class="container mt-5">
-    <h1>Please Login</h1>
+    <h2>Welcome to the Security Project</h2>
     <br>
-    <form action="/loginn" method="post">
-        <input type="text" placeholder="Username" name="username" value="{{ request.form.username }}" class="form-control mb-2">
-        <input type="password" placeholder="Password" name="password" value="{{ request.form.password }}" class="form-control mb-2">
-        <button class="btn btn-primary" type="submit">Login</button>
-    </form>
-    {% if error %}
-        <p class="error"><strong>Error:</strong> {{ error }}</p>
-    {% endif %}
-</div>
-<div class="container mb-3 text-right">
-<br>
-<body>
-
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <div class="alert alert-danger">
-            {{ messages[0] }}
-        </div>
-    {% endif %}
-    {% endwith %}
-
-</body>
-
+    <p>
+        This website is a development project built using Flask and SQLite as the backend. It is part of a security project
+        aimed at testing and securing application vulnerabilities.
+    </p>
+    <p>
+        Feel free to explore the website and use the navigation bar to access the login and registration pages.
+    </p>
 </div>
 
 <div class="container fixed-bottom mb-3 text-right">
     <span class="text-secondary"><span class="text-primary">Security Project</span> - JL-Sec v1.0</span>
 </div>
+
 
 <script src="../static/bootstrap.min.js"></script>
 
