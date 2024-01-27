@@ -1,15 +1,15 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, g
+from flask import Flask, render_template, redirect, url_for, request, flash, g, session
+from datetime import timedelta
 import sqlite3
 import hashlib
 import logging
-from flask import flash
 
 # Configure logging
 # logging.basicConfig(filename='logging\\app.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 
-app.secret_key = 'your_secret_key_here'  # Replace with a strong and unique secret key
+app.secret_key = "hello"
 
 db_storage = "data\\test.db"
 
@@ -30,7 +30,6 @@ def searchUser(searchName, searchPassword):
     try:
         cursor = get_cursor()
         hashedPassword = hashlib.md5(searchPassword.encode()).hexdigest()
-
 
 ############################################ --- The following is SQL injectable --- ###########################################################
         
@@ -61,25 +60,71 @@ def searchUser(searchName, searchPassword):
         if cursor:
             cursor.close()
 
+# Function to register a user:
+            
+def insertUser(newUsername, newPassword):
+    try:
+        with get_db() as con:
+            cursor = con.cursor()
+            hashedPassword = hashlib.md5(newPassword.encode()).hexdigest()
+
+            # Inserting Variables into DB
+            cursor.execute(f"INSERT INTO users VALUES (?, ?, ?)", (newUsername, newUsername, hashedPassword))
+            con.commit()
+    except Exception as e:
+        logging.error(f'Error: {e}')
+        return False
+    return True
+
+
+## Start of Routes ## 
+
+# Login Route
+
 @app.route('/loginn', methods=['POST', 'GET'])
 def login2():
     error = None
     if request.method == 'POST':
+        session.permanent = True
         # Pulling variables from form
         username = request.form.get("username")
         password = request.form.get("password")
         print(username, password)
         checkUser = searchUser(username, password)
-
+        
         if checkUser:
+            session["username"] = username
             return redirect(url_for('admin'))  # render a template
         else:
-            flash('Username or password incorrect', 'error')
+            flash(('danger', 'Username or Password Incorrect'))
             return render_template('login.html')  # render a template
     else:
         return render_template('login.html')  # render a template     
+    
+# Registering a user route
+    
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    error = None
+    if request.method == 'POST':
+        # Pulling variables from form
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmPassword = request.form.get("confirmPassword")
+
+        if password == confirmPassword and len(username)>1 and len(password)>1:        
+            insertUser(username, password)
+            flash(('success', 'Account created'))
+            return redirect(url_for('login2'))  # render a template
+        
+        else:
+            flash('There was an error with your registration. Please try again', 'error')
+            return render_template('register.html')  # render a template
+    else:
+        return render_template('register.html')  # render a template       
 
 # use decorators to link the function to a url
+
 @app.route('/')
 def home():
     return render_template('home.html')  # render a template 
@@ -90,15 +135,16 @@ def home2():
 
 @app.route('/admin')
 def admin():
-    return render_template('admin.html')  # render a template
+    if "username" in session:
+        username = session["username"]
+        return render_template('admin.html')  # render a template
+    else:
+        return redirect(url_for("login2"))
 
 @app.route('/super_secret')
 def super_secret():
     return "Flag0987youwin!"  # return a string
 
-@app.route('/register')
-def register():
-    return render_template('register.html')  # render a template     
 
 @app.route('/welcome')
 def welcome():
